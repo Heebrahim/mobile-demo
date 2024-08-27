@@ -1,17 +1,20 @@
 import { Button } from "@chakra-ui/react";
 
 
+
 export function Home () {
-    return (
+  return (
+    <>
+    <div>
+      <main className="h-full flex items-center justify-center">
 
-
-        <>
-
-        <Button  >
+        <Button>
           Get Started
         </Button>
-        
-        </>
 
-    )
+      </main>
+    </div>
+    
+    </>
+  )
 }
