@@ -2,18 +2,6 @@ import * as L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
 import "./global.css";
-
-// import "leaflet/dist/leaflet.css";
-
-// import "leaflet.markercluster/dist/MarkerCluster.css";
-// import "leaflet.markercluster/dist/MarkerCluster.Default.css";
-
-// import "leaflet-draw/dist/leaflet.draw.css";
-
-// import "leaflet-active-area";
-
-// import "leaflet-spectrum-spatial";
-
 import * as E from "@effect/data/Either";
 
 import { pipe } from "@effect/data/Function";
@@ -92,32 +80,6 @@ export const markerProps = {
   icon: markerIcon,
 };
 
-// function Loader() {
-//   return (
-//     <div className="h-full flex p-4">
-//       <Spinner className="m-auto" size="sm" />
-//     </div>
-//   );
-// }
-
-// function LoadError() {
-//   return (
-//     <div className="h-full flex">
-//       <div className="m-auto flex flex-col items-center justify-center space-y-2">
-//         <p className="text-center">An error occurred.</p>
-
-//         <Button
-//           size="sm"
-//           className="w-fit"
-//           onClick={() => window.location.reload()}
-//         >
-//           Retry
-//         </Button>
-//       </div>
-//     </div>
-//   );
-// }
-
 enum GeolocationPositionErrorCode {
   PERMISSION_DENIED = 1,
   POSITION_UNAVAILABLE = 2,
@@ -142,17 +104,6 @@ function toNumber(n: string | null) {
     O.filter((_) => !Number.isNaN(_))
   );
 }
-
-// function stringToNumber(str: string | null) {
-//   const val =
-//     typeof str === "string" && str.trim() !== ""
-//       ? Number(str)
-//       : typeof str === "number"
-//       ? str
-//       : null;
-
-//   return val !== null && Number.isNaN(val) ? null : val;
-// }
 
 function parseLatLng(str: string | null) {
   return pipe(
@@ -264,6 +215,8 @@ export function MapPage() {
       const lat = loc.lat();
       const lng = loc.lng();
 
+      
+
       setSearch((search) => {
         search.set("p", `${lat},${lng}`);
         search.delete("d");
@@ -277,7 +230,6 @@ export function MapPage() {
     [map, setSearch]
   );
 
-  console.log(showStreetview?.lat, showStreetview?.lng);
 
   const onCurrentLocation = useCallback(() => {
     pipe(

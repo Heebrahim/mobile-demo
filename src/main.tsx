@@ -11,6 +11,8 @@ import { Root } from './root';
 import { AppError } from './error';
 import { Home } from './pages/home/page';
 import { MapPage } from './pages/map/page';
+import { StepperForm } from './pages/form/page';
+import { Dashboard } from './pages/dashboard/page';
 
 const queryClient = new QueryClient();
 
@@ -64,6 +66,16 @@ const router = createBrowserRouter([
         path: "/map",
 
         element:  < MapPage/>
+      },
+      {
+        path: "/form",
+
+        element:  < StepperForm/>
+      },
+      {
+        path: "/dashboard",
+
+        element:  <Dashboard/>
       },
 
     
