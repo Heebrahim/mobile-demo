@@ -17,80 +17,88 @@ import { Dashboard } from './pages/dashboard/page';
 const queryClient = new QueryClient();
 
 const theme = extendTheme({
-  colors: {
-    brand: {
-      900: "var(--brand)",
-    },
-  },
-  fonts: {
-    heading: "var(--font-mtn)",
-    body: "var(--font-mtn)",
-  },
-  components: {
-    Button: {
-      variants: {
-        solid: {
-          bg: "brand.900",
-          rounded: 4,
-          color: "white",
-        },
-        
-        outline: {
-          rounded: 4,
-          borderColor: "gray.400",
-        },
-      },
-    },
-    Input: {
-      variants: {
-        filled: {
-          borderColor: "gray.900",
-        },
-      },
-    },
-  },
+ colors: {
+   brand: {
+     900: "var(--brand)",
+   },
+ },
+ fonts: {
+   heading: "var(--font-mtn)",
+   body: "var(--font-mtn)",
+ },
+ components: {
+   Button: {
+     variants: {
+       solid: {
+         bg: "brand.900",
+         rounded: 4,
+         color: "white",
+       },
+      
+       outline: {
+         rounded: 4,
+         borderColor: "gray.400",
+       },
+     },
+   },
+   Input: {
+     variants: {
+       filled: {
+         borderColor: "gray.900",
+       },
+     },
+   },
+ },
 });
 
+
 const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Root />,
-    errorElement: <AppError />,
-    children: [
-      {
-        index: true,
-        element: <Home />,
-      },
+ {
+   path: "/",
+   element: <Root />,
+   errorElement: <AppError />,
+   children: [
+     {
+       index: true,
+       element: <Home />,
+     },
 
-      {
-        path: "/map",
+     {
+       path: "/map",
 
-        element:  < MapPage/>
-      },
-      {
-        path: "/form",
+       element:  < MapPage/>
+     },
+     {
+       path: "/form",
 
-        element:  < StepperForm/>
-      },
-      {
-        path: "/dashboard",
 
-        element:  <Dashboard/>
-      },
+       element:  < StepperForm/>
+     },
+     {
+       path: "/form/address",
 
-    
-    ],
-    
-  },
+
+       element:  < StepperForm/>
+     },
+     {
+       path: "/dashboard",
+
+       element:  <Dashboard/>
+     },
+
+  
+   ],
+  
+ },
 ]);
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
+ <StrictMode>
 
 <QueryClientProvider client={queryClient}>
-      <ChakraProvider theme={theme} >
-        <RouterProvider router={router} />
-      </ChakraProvider>
-    </QueryClientProvider>
-  </StrictMode>,
+     <ChakraProvider theme={theme} >
+       <RouterProvider router={router} />
+     </ChakraProvider>
+   </QueryClientProvider>
+ </StrictMode>,
 )

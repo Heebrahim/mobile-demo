@@ -22,10 +22,21 @@ import {
 } from "react";
 import clsx from "clsx";
 import styles from "./style.module.css";
-import { Button, Spinner, useToast } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Spinner,
+  useBreakpointValue,
+  useToast,
+} from "@chakra-ui/react";
 import { useMediaQuery } from "@uidotdev/usehooks";
 import { Search } from "../../components/search";
-import { Link, useNavigation, useSearchParams } from "react-router-dom";
+import {
+  Link,
+  useNavigate,
+  useNavigation,
+  useSearchParams,
+} from "react-router-dom";
 import { StreetView } from "../../components/streetview";
 import { motion } from "framer-motion";
 import { updateURLSearchWithoutNavigation } from "../../hooks/use-update-url-search-without-navigation";
@@ -63,7 +74,7 @@ const maxMapViewBounds: LatLngBoundsExpression = [
   [14, 15],
 ];
 
-const defaultZoom = 6;
+const defaultZoom = 5;
 
 const defaultCenter = { lat: 9.1715156, lng: 4.0128317 };
 
@@ -114,7 +125,7 @@ function parseLatLng(str: string | null) {
   );
 }
 
-function useURLSearchParams() {
+export function useURLSearchParams() {
   const navigation = useNavigation();
 
   const [search, setSearch] = useSearchParams();
@@ -135,6 +146,7 @@ export function MapPage() {
   const zoom = defaultZoom;
 
   const { lat, lng } = defaultCenter;
+  const navigate = useNavigate();
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey,
@@ -149,12 +161,13 @@ export function MapPage() {
   const isLargeScreen = useMediaQuery("(min-width: 1024px)");
   const [showStreetview, setShowStreetview] = useState<LatLng | null>(null);
   const [markerLatlng, setLatLng] = useState(() => {
-    return new L.LatLng(lat, lng);
+    return defaultCenter ? null : new L.LatLng(lat, lng);
   });
 
   const markerRef = useRef<L.Marker | null>(null);
   const toast = useToast();
   const [search, setSearch] = useURLSearchParams();
+  const isMobile = useBreakpointValue({ base: true, md: false });
 
   console.log(isLoaded);
 
@@ -210,12 +223,55 @@ export function MapPage() {
     [map, setSearch]
   );
 
+  const handleSave = useCallback(() => {
+    const latlng = markerRef.current?.getLatLng();
+    if (latlng) {
+      const lat = latlng.lat;
+      const lng = latlng.lng;
+      const geocoder = new google.maps.Geocoder();
+      geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+        if (status === "OK" && results[0]) {
+          const addressComponents = results[0].address_components;
+          const addressData = {
+            houseNumber: "",
+            streetName: "",
+            areaName: "",
+            lga: "",
+            state: "",
+            latitude: lat,
+            longitude: lng,
+          };
+          addressComponents.forEach((component) => {
+            if (component.types.includes("street_number")) {
+              addressData.houseNumber = component.long_name;
+            }
+            if (component.types.includes("route")) {
+              addressData.streetName = component.long_name;
+            }
+            if (
+              component.types.includes("sublocality") ||
+              component.types.includes("locality")
+            ) {
+              addressData.areaName = component.long_name;
+            }
+            if (component.types.includes("administrative_area_level_2")) {
+              addressData.lga = component.long_name;
+            }
+            if (component.types.includes("administrative_area_level_1")) {
+              addressData.state = component.long_name;
+            }
+          });
+          const queryParams = new URLSearchParams(addressData).toString();
+          navigate(`/form/address?${queryParams}&step=1`);
+        }
+      });
+    }
+  }, [navigate]);
+
   const onAutocompletePlaceChange = useCallback(
     (loc: google.maps.LatLng) => {
       const lat = loc.lat();
       const lng = loc.lng();
-
-      
 
       setSearch((search) => {
         search.set("p", `${lat},${lng}`);
@@ -229,7 +285,6 @@ export function MapPage() {
     },
     [map, setSearch]
   );
-
 
   const onCurrentLocation = useCallback(() => {
     pipe(
@@ -360,7 +415,16 @@ export function MapPage() {
 
   return (
     <>
-      <main className="h-full flex flex-col">
+      <Box
+        className="h-full flex flex-col"
+        maxW={isMobile ? "100%" : "sm"}
+        mx="auto"
+        mt={10}
+        p={4}
+        boxShadow="lg"
+        borderRadius="lg"
+        bg="white"
+      >
         {isLoaded ? (
           <MapContainer
             zoom={zoom}
@@ -373,7 +437,7 @@ export function MapPage() {
             maxBounds={maxMapViewBounds}
             className={clsx("h-full flex-1", styles.map)}
           >
-            <div className="p-16 lg:p-4 lg:w-[20%]">
+            <div className="pr-16 pl-2 pt-4">
               <Search
                 onSubmit={onSearch}
                 google_maps_loaded={isLoaded}
@@ -396,21 +460,24 @@ export function MapPage() {
                 <Popup>
                   <motion.div layoutId="streetview">
                     <div className="flex justify-between text-white gap-4">
-                    <Button
-                      as={Link}
+                      <Button
+                        as={Link}
+                        size="sm"
+                        className=""
+                        onClick={() => setShowStreetview({ lat, lng })}
+                      >
+                        Street View
+                      </Button>
 
-                      size="sm"
-                      className=""
-                      onClick={() => setShowStreetview({ lat, lng })}
-                    >
-                      Street View
-                    </Button>
-
-                    <Button as={Link} size="sm" className="" to="/">
-                      save
-                    </Button>
-
-                    </div>      
+                      <Button
+                        as={Link}
+                        size="sm"
+                        className=""
+                        onClick={handleSave}
+                      >
+                        save
+                      </Button>
+                    </div>
                   </motion.div>
                 </Popup>
               </Marker>
@@ -442,9 +509,9 @@ export function MapPage() {
             <span>{cursor.z}</span>
           </p>
         </div>
-      </main>
 
-      <div tabIndex={-1} className="active-region" />
+        <div tabIndex={-1} className="active-region" />
+      </Box>
     </>
   );
 }
