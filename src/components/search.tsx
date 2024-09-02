@@ -3,6 +3,7 @@ import {
   Input,
   InputGroup,
   InputRightElement,
+  Tooltip,
 } from "@chakra-ui/react";
 import { pipe } from "@effect/data/Function";
 import * as O from "@effect/data/Option";
@@ -64,6 +65,7 @@ export function Search({
   return (
     <form onSubmit={onSubmit} className="">
       <InputGroup variant="filled">
+
         <Input
           name="query"
           type="search"
@@ -74,6 +76,8 @@ export function Search({
         />
 
         <InputRightElement>
+        <Tooltip label="Search using my current location" placement="top">
+
           <IconButton
             type="button"
             colorScheme="gray"
@@ -82,6 +86,7 @@ export function Search({
             aria-label="Search using my location"
             icon={<BiCurrentLocation size={20} />}
           />
+          </Tooltip>
         </InputRightElement>
       </InputGroup>
     </form>

@@ -31,14 +31,11 @@ export function StepperForm() {
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  // Initialize state from URL params or default
   const stepFromParams = parseInt(search.get("step"), 10) || 0;
-  const [activeStep, setActiveStep] = useState(stepFromParams); // Control the current step
-  const [isHomeScreen, setIsHomeScreen] = useState(true); // Control home screen state
-  const [initialStep, setInitialStep] = useState(true); // Control "What address are you verifying?" state
+  const [activeStep, setActiveStep] = useState(stepFromParams);
+  const [initialStep, setInitialStep] = useState(true);
   const isMobile = useBreakpointValue({ base: true, md: false });
   const [isLoading, setIsLoading] = useState(false);
-
 
   const toast = useToast();
 
@@ -52,7 +49,7 @@ export function StepperForm() {
       lastname: search.get("lastName") || "",
       gender: search.get("gender") || "",
       email: search.get("email") || "",
-      passport: null, // Avoid storing file object in session
+      passport: null,
       houseNumber: search.get("houseNumber") || "",
       streetName: search.get("streetName") || "",
       areaName: search.get("areaName") || "",
@@ -61,17 +58,25 @@ export function StepperForm() {
       latitude: search.get("latitude") || "",
       longitude: search.get("longitude") || "",
       proofOfAddress: "",
-      addressPicture: null, // Avoid storing file object in session
+      housePicture: null,
+      addressProofPicture: null,
       idType: "",
-      idCard: null, // Avoid storing file object in session
+      idPicture: null,
     };
   });
 
   const validateStep = () => {
     const requiredFields = {
-      0: ["firstname", "lastname", "gender", "email", "passport"],
-      1: ["houseNumber", "streetName", "areaName", "lga", "state", "proofOfAddress", "addressPicture"],
-      2: ["idType", "idCard"],
+      0: ["firstname", "lastname", "gender", "email"],
+      1: [
+        "streetName",
+        "areaName",
+        "lga",
+        "state",
+        "proofOfAddress",
+        "addressPicture",
+      ],
+      2: ["idType", "idCard", "passport"],
     };
     return requiredFields[activeStep].every((field) => formData[field]);
   };
@@ -79,7 +84,13 @@ export function StepperForm() {
   const handleNext = () => {
     if (validateStep()) {
       if (activeStep === 0) {
-        const { passport, addressPicture, idCard, ...dataWithoutFiles } = formData;
+        const {
+          passport,
+          housePicture,
+          addressProofPicture,
+          idPicture,
+          ...dataWithoutFiles
+        } = formData;
         sessionStorage.setItem("formData", JSON.stringify(dataWithoutFiles));
         navigate("/map?step=1");
       } else {
@@ -127,9 +138,13 @@ export function StepperForm() {
         data.append(key, value);
       });
 
-      await axios.post("https://test.polarisdigitech.net/amp/api/poc/create", data, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      await axios.post(
+        "https://test.polarisdigitech.net/amp/api/poc/create",
+        data,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
 
       toast({
         title: "Success",
@@ -193,46 +208,62 @@ export function StepperForm() {
     }
 
     if (stepFromParams > 0) {
-      setInitialStep(false); // Don't show the initial step if coming back from a later step
-      setIsHomeScreen(false); // Ensure we don't go back to home screen
+      setInitialStep(false);
       setActiveStep(stepFromParams);
     }
   }, [search]);
 
   useEffect(() => {
-    // Persist form data in session storage without files
-    const { passport, addressPicture, idCard, ...dataWithoutFiles } = formData;
+    const {
+      passport,
+      housePicture,
+      addressProofPicture,
+      idPicture,
+      ...dataWithoutFiles
+    } = formData;
     sessionStorage.setItem("formData", JSON.stringify(dataWithoutFiles));
   }, [formData]);
 
   return (
-    <Box maxW={isMobile ? "100%" : "sm"} mx="auto" my={10} p={8} boxShadow="lg" borderRadius="lg" bg="white">
-      {isHomeScreen ? (
-        <Box textAlign="center">
-          <Text fontSize="lg" fontWeight="bold" mb={4}>
-            Welcome to Address Verification
-          </Text>
-          <Button colorScheme="teal" onClick={() => setIsHomeScreen(false)}>
-            Start
-          </Button>
-        </Box>
-      ) : initialStep ? (
-        <Box textAlign="center">
+    <Box
+      maxW={isMobile ? "100%" : "sm"}
+      mx="auto"
+      my={10}
+   
+      boxShadow="lg"
+      borderRadius="lg"
+      bg="white"
+    >
+                <div className="text-white">
+           <img src="firstLogo.png" alt="" />
+          </div>
+      { initialStep ? (
+        <Box textAlign="center" p={8}>
           <Text fontSize="lg" fontWeight="bold" mb={4}>
             What address are you verifying?
           </Text>
-          <Button colorScheme="teal" mr={2} onClick={() => handleInitialStep("Home")}>
+          <Button
+            colorScheme="teal"
+            mr={2}
+            onClick={() => handleInitialStep("HOME")}
+          >
             Home
           </Button>
-          <Button colorScheme="teal" onClick={() => handleInitialStep("Work")}>
+          <Button colorScheme="teal" onClick={() => handleInitialStep("OFFICE")}>
             Work
           </Button>
         </Box>
       ) : (
-        <Stack spacing={6}>
+        <Stack spacing={6} p={8}>
           <Flex justify="space-between">
             {steps.map((step, index) => (
-              <Box key={step} p={4} borderBottom="2px" borderColor={activeStep === index ? "blue.500" : "gray.300"} fontWeight={activeStep === index ? "bold" : "normal"}>
+              <Box
+                key={step}
+                p={4}
+                borderBottom="2px"
+                borderColor={activeStep === index ? "blue.500" : "gray.300"}
+                fontWeight={activeStep === index ? "bold" : "normal"}
+              >
                 {step}
               </Box>
             ))}
@@ -242,50 +273,60 @@ export function StepperForm() {
             {activeStep === 0 && (
               <Box>
                 <FormLabel>
-                  First Name <Text as="span" color="red">*</Text>
+                  First Name{" "}
+                  <Text as="span" color="red">
+                    *
+                  </Text>
                 </FormLabel>
-                <Input isRequired placeholder="First Name" name="firstname" value={formData.firstname} onChange={handleChange} />
+                <Input
+                  isRequired
+                  placeholder="First Name"
+                  name="firstname"
+                  value={formData.firstname}
+                  onChange={handleChange}
+                />
 
                 <FormLabel mt={4}>
-                  Last Name <Text as="span" color="red">*</Text>
+                  Last Name{" "}
+                  <Text as="span" color="red">
+                    *
+                  </Text>
                 </FormLabel>
-                <Input isRequired placeholder="Last Name" name="lastname" value={formData.lastname} onChange={handleChange} />
+                <Input
+                  isRequired
+                  placeholder="Last Name"
+                  name="lastname"
+                  value={formData.lastname}
+                  onChange={handleChange}
+                />
 
                 <FormLabel mt={4}>
-                  Gender <Text as="span" color="red">*</Text>
-                  </FormLabel>
-                <Select name="gender" value={formData.gender} onChange={handleChange}>
+                  Gender{" "}
+                  <Text as="span" color="red">
+                    *
+                  </Text>
+                </FormLabel>
+                <Select
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleChange}
+                >
                   <option value="male">Male</option>
                   <option value="female">Female</option>
                   <option value="others">Others</option>
                 </Select>
 
                 <FormLabel mt={4}>
-                  Email Address <Text as="span" color="red">*</Text>
+                  Email Address{" "}
+                  <Text as="span" color="red">
+                    *
+                  </Text>
                 </FormLabel>
                 <Input
                   isRequired
                   placeholder="Email Address"
                   name="email"
                   value={formData.email}
-                  onChange={handleChange}
-                />
-
-                <FormLabel mt={4}>
-                  Upload Passport <Text as="span" color="red">*</Text>
-                </FormLabel>
-                {formData.passport instanceof File && (
-                  <Image
-                    src={URL.createObjectURL(formData.passport)}
-                    alt="Passport Thumbnail"
-                    boxSize="100px"
-                    mb={2}
-                  />
-                )}
-                <Input
-                  isRequired
-                  name="passport"
-                  type="file"
                   onChange={handleChange}
                 />
               </Box>
@@ -301,9 +342,7 @@ export function StepperForm() {
                 <input type="text" hidden name="longitude" />
                 <input type="text" hidden name="latitude" />
 
-                <FormLabel mt={4}>
-                  House Number <Text as="span" color="red">*</Text>
-                </FormLabel>
+                <FormLabel mt={4}>House Number </FormLabel>
                 <Input
                   isRequired
                   placeholder="House Number"
@@ -313,7 +352,10 @@ export function StepperForm() {
                 />
 
                 <FormLabel mt={4}>
-                  Street Name <Text as="span" color="red">*</Text>
+                  Street Name{" "}
+                  <Text as="span" color="red">
+                    *
+                  </Text>
                 </FormLabel>
                 <Input
                   isRequired
@@ -324,7 +366,10 @@ export function StepperForm() {
                 />
 
                 <FormLabel mt={4}>
-                  Area Name <Text as="span" color="red">*</Text>
+                  Area Name{" "}
+                  <Text as="span" color="red">
+                    *
+                  </Text>
                 </FormLabel>
                 <Input
                   isRequired
@@ -335,7 +380,10 @@ export function StepperForm() {
                 />
 
                 <FormLabel>
-                  LGA <Text as="span" color="red">*</Text>
+                  LGA{" "}
+                  <Text as="span" color="red">
+                    *
+                  </Text>
                 </FormLabel>
                 <Input
                   isRequired
@@ -346,7 +394,10 @@ export function StepperForm() {
                 />
 
                 <FormLabel mt={4}>
-                  State <Text as="span" color="red">*</Text>
+                  State{" "}
+                  <Text as="span" color="red">
+                    *
+                  </Text>
                 </FormLabel>
                 <Input
                   isRequired
@@ -357,12 +408,31 @@ export function StepperForm() {
                 />
 
                 <FormLabel mt={4}>
-                  Upload Address Picture <Text as="span" color="red">*</Text>
+                  Utility Bill{" "}
+                  <Text as="span" color="red">
+                    *
+                  </Text>
                 </FormLabel>
-                {formData.addressPicture instanceof File && (
+                <Select
+                  name="proofOfAddress"
+                  value={formData.proofOfAddress}
+                  onChange={handleChange}
+                  defaultValue="nepaBill"
+                >
+                  <option value="WATER_BILL">Nepa Bill</option>
+                  <option value="POWER_BILL">Water Bill</option>
+                </Select>
+
+                <FormLabel mt={4}>
+                  Upload Utility Bill{" "}
+                  <Text as="span" color="red">
+                    *
+                  </Text>
+                </FormLabel>
+                {formData.addressProofPicture instanceof File && (
                   <Image
-                    src={URL.createObjectURL(formData.addressPicture)}
-                    alt="Address Picture Thumbnail"
+                    src={URL.createObjectURL(formData.addressProofPicture)}
+                    alt="Address Proof Picture Thumbnail"
                     boxSize="100px"
                     mb={2}
                   />
@@ -373,45 +443,45 @@ export function StepperForm() {
                   type="file"
                   onChange={handleChange}
                 />
-
-                <FormLabel mt={4}>
-                  Proof of Address <Text as="span" color="red">*</Text>
-                </FormLabel>
-                <Select
-                  name="proofOfAddress"
-                  value={formData.proofOfAddress}
-                  onChange={handleChange}
-                  defaultValue="nepaBill"
-                >
-                  <option value="nepaBill">Nepa Bill</option>
-                  <option value="waterBill">Water Bill</option>
-                </Select>
               </Box>
             )}
 
             {activeStep === 2 && (
               <Box>
                 <FormLabel>
-                  ID Type <Text as="span" color="red">*</Text>
+                  ID Type{" "}
+                  <Text as="span" color="red">
+                    *
+                  </Text>
                 </FormLabel>
-                <Select name="idType" value={formData.idType} onChange={handleChange}>
+                <Select
+                  name="idType"
+                  value={formData.idType}
+                  onChange={handleChange}
+                >
                   <option value="NIN">NIN</option>
-                  <option value="passport">Int'l Passport</option>
-                  <option value="driversLicense">Driver's License</option>
-                  <option value="votersCard">Voters Card</option>
+                  <option value="PASSPORT">Int'l Passport</option>
+                  <option value="DRIVERS_LICENCE">Driver's License</option>
+                  <option value="VOTERS_CARD">Voters Card</option>
                 </Select>
 
                 <FormLabel mt={4}>
-                  ID Number <Text as="span" color="red">*</Text>
+                  ID Number{" "}
+                  <Text as="span" color="red">
+                    *
+                  </Text>
                 </FormLabel>
                 <Input isRequired name="idNumber" onChange={handleChange} />
 
                 <FormLabel mt={4}>
-                  Upload ID Card <Text as="span" color="red">*</Text>
+                  Upload ID Card{" "}
+                  <Text as="span" color="red">
+                    *
+                  </Text>
                 </FormLabel>
-                {formData.idCard instanceof File && (
+                {formData.idPicture instanceof File && (
                   <Image
-                    src={URL.createObjectURL(formData.idCard)}
+                    src={URL.createObjectURL(formData.idPicture)}
                     alt="ID Card Thumbnail"
                     boxSize="100px"
                     mb={2}
@@ -420,6 +490,48 @@ export function StepperForm() {
                 <Input
                   isRequired
                   name="idCard"
+                  type="file"
+                  onChange={handleChange}
+                />
+
+                <FormLabel mt={4}>
+                  Upload Passport Photo{" "}
+                  <Text as="span" color="red">
+                    *
+                  </Text>
+                </FormLabel>
+                {formData.passport instanceof File && (
+                  <Image
+                    src={URL.createObjectURL(formData.passport)}
+                    alt="Passport Thumbnail"
+                    boxSize="100px"
+                    mb={2}
+                  />
+                )}
+                <Input
+                  isRequired
+                  name="passport"
+                  type="file"
+                  onChange={handleChange}
+                />
+
+                <FormLabel mt={4}>
+                  Upload Address Picture{" "}
+                  <Text as="span" color="red">
+                    *
+                  </Text>
+                </FormLabel>
+                {formData.housePicture instanceof File && (
+                  <Image
+                    src={URL.createObjectURL(formData.housePicture)}
+                    alt="Address Picture Thumbnail"
+                    boxSize="100px"
+                    mb={2}
+                  />
+                )}
+                <Input
+                  isRequired
+                  name="housePicture"
                   type="file"
                   onChange={handleChange}
                 />
@@ -458,7 +570,8 @@ export function StepperForm() {
           <ModalHeader>Address Verification</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            Please be patient, your address verification is in progress.
+           Thank you for completing the First Bank of Nigeria eKYC Onboarding process.
+           Your verification is in progress and you will be notified once done.
           </ModalBody>
           <ModalFooter>
             <Button colorScheme="blue" mr={3} onClick={onClose}>
@@ -470,4 +583,3 @@ export function StepperForm() {
     </Box>
   );
 }
-

@@ -11,7 +11,7 @@ import * as Effect from "@effect/io/Effect";
 
 import { LatLngBoundsExpression } from "leaflet";
 import { Libraries, useJsApiLoader } from "@react-google-maps/api";
-import { MapContainer, Marker, Popup, ZoomControl } from "react-leaflet";
+import { MapContainer, Marker, Popup, Tooltip, ZoomControl } from "react-leaflet";
 import {
   FormEvent,
   useCallback,
@@ -261,18 +261,18 @@ export function MapPage() {
               addressData.state = component.long_name;
             }
           });
-  
+
           // Persist form data in sessionStorage
           const formData = JSON.parse(sessionStorage.getItem("formData")) || {};
           const updatedFormData = { ...formData, ...addressData, step: 1 };
           sessionStorage.setItem("formData", JSON.stringify(updatedFormData));
-  
+
           navigate(`/form?${new URLSearchParams(updatedFormData)}`);
         }
       });
     }
   }, [navigate]);
-  
+
   const onAutocompletePlaceChange = useCallback(
     (loc: google.maps.LatLng) => {
       const lat = loc.lat();
@@ -485,6 +485,10 @@ export function MapPage() {
                     </div>
                   </motion.div>
                 </Popup>
+
+                <Tooltip>
+              Click to capture address
+                </Tooltip>
               </Marker>
             ) : null}
           </MapContainer>
@@ -494,6 +498,22 @@ export function MapPage() {
               <Spinner />
             </div>
           </div>
+        )}
+
+        {markerLatlng ? (
+          <Button colorScheme="#DFAC0F" onClick={handleSave} size="xs">
+            Capture Address
+          </Button>
+        ) : (
+          
+          <Button
+            size="xs"
+            onClick={() => {
+              navigate(`/form?step=1`)
+            }}
+          >
+            Back
+          </Button>
         )}
 
         <div className={styles.coordinates_preview}>
