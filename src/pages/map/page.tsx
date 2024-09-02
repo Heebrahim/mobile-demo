@@ -261,13 +261,18 @@ export function MapPage() {
               addressData.state = component.long_name;
             }
           });
-          const queryParams = new URLSearchParams(addressData).toString();
-          navigate(`/form/address?${queryParams}&step=1`);
+  
+          // Persist form data in sessionStorage
+          const formData = JSON.parse(sessionStorage.getItem("formData")) || {};
+          const updatedFormData = { ...formData, ...addressData, step: 1 };
+          sessionStorage.setItem("formData", JSON.stringify(updatedFormData));
+  
+          navigate(`/form?${new URLSearchParams(updatedFormData)}`);
         }
       });
     }
   }, [navigate]);
-
+  
   const onAutocompletePlaceChange = useCallback(
     (loc: google.maps.LatLng) => {
       const lat = loc.lat();
