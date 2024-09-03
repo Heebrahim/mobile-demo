@@ -169,7 +169,6 @@ export function MapPage() {
   const [search, setSearch] = useURLSearchParams();
   const isMobile = useBreakpointValue({ base: true, md: false });
 
-  console.log(isLoaded);
 
   const markerEventHandlers = useMemo(
     () => ({
@@ -223,6 +222,11 @@ export function MapPage() {
     [map, setSearch]
   );
 
+  const handleBack = useCallback(() => {
+    const formData = JSON.parse(sessionStorage.getItem("formData")) || {};
+    navigate(`/form?${new URLSearchParams(formData)}`);
+  }, [navigate]);
+
   const handleSave = useCallback(() => {
     const latlng = markerRef.current?.getLatLng();
     if (latlng) {
@@ -262,7 +266,6 @@ export function MapPage() {
             }
           });
 
-          // Persist form data in sessionStorage
           const formData = JSON.parse(sessionStorage.getItem("formData")) || {};
           const updatedFormData = { ...formData, ...addressData, step: 1 };
           sessionStorage.setItem("formData", JSON.stringify(updatedFormData));
@@ -352,15 +355,15 @@ export function MapPage() {
         autoClose={false}
         closeButton={false}
         closeOnClick={false}
-        position={[showStreetview.lat, showStreetview.lng]}
+        position={[markerLatlng.lat, markerLatlng.lng]}
       >
         <motion.div
           layoutId="streetview"
           className="h-[20rem] streetview-popup space-y-3 flex flex-col"
         >
           <StreetView
-            latitude={showStreetview.lat}
-            longitude={showStreetview.lng}
+            latitude={markerLatlng.lat}
+            longitude={markerLatlng.lng}
             key={`${showStreetview.lat}:${showStreetview.lat}`}
           />
 
@@ -505,12 +508,10 @@ export function MapPage() {
             Capture Address
           </Button>
         ) : (
-          
+          /*  */
           <Button
             size="xs"
-            onClick={() => {
-              navigate(`/form?step=1`)
-            }}
+            onClick={handleBack}
           >
             Back
           </Button>

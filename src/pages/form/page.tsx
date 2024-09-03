@@ -172,7 +172,7 @@ export function StepperForm() {
       ...prev,
       addressType: type,
     }));
-    setInitialStep(false); // Move past the "What address are you verifying?" screen
+    setInitialStep(false); 
   };
 
   useEffect(() => {
@@ -417,10 +417,10 @@ export function StepperForm() {
                   name="proofOfAddress"
                   value={formData.proofOfAddress}
                   onChange={handleChange}
-                  defaultValue="nepaBill"
+                  defaultValue="WATER_BILL"
                 >
-                  <option value="WATER_BILL">Nepa Bill</option>
-                  <option value="POWER_BILL">Water Bill</option>
+                  <option value="WATER_BILL">Water Bill</option>
+                  <option value="POWER_BILL">Power Bill</option>
                 </Select>
 
                 <FormLabel mt={4}>
@@ -439,7 +439,7 @@ export function StepperForm() {
                 )}
                 <Input
                   isRequired
-                  name="addressPicture"
+                  name="addressProofPicture"
                   type="file"
                   onChange={handleChange}
                 />
@@ -458,6 +458,7 @@ export function StepperForm() {
                   name="idType"
                   value={formData.idType}
                   onChange={handleChange}
+                  defaultValue="NIN"
                 >
                   <option value="NIN">NIN</option>
                   <option value="PASSPORT">Int'l Passport</option>
@@ -489,7 +490,7 @@ export function StepperForm() {
                 )}
                 <Input
                   isRequired
-                  name="idCard"
+                  name="idPicture"
                   type="file"
                   onChange={handleChange}
                 />
@@ -564,7 +565,10 @@ export function StepperForm() {
         </Stack>
       )}
 
-      <Modal isOpen={isOpen} onClose={onClose}>
+      <Modal isOpen={isOpen} onClose={() => {
+        onClose()
+        navigate("/")
+      }}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Address Verification</ModalHeader>
@@ -574,7 +578,10 @@ export function StepperForm() {
            Your verification is in progress and you will be notified once done.
           </ModalBody>
           <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={onClose}>
+            <Button colorScheme="blue" mr={3} onClick={() => {
+              onClose()
+              navigate("/")
+            }}>
               Close
             </Button>
           </ModalFooter>
