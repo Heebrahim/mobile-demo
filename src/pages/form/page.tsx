@@ -47,7 +47,7 @@ export function StepperForm() {
       addressType: savedData.addressType || "",
       firstname: search.get("firstName") || "",
       lastname: search.get("lastName") || "",
-      gender: search.get("gender") || "",
+      gender: search.get("gender") || "male",
       email: search.get("email") || "",
       passport: null,
       houseNumber: search.get("houseNumber") || "",
@@ -57,10 +57,10 @@ export function StepperForm() {
       state: search.get("state") || "",
       latitude: search.get("latitude") || "",
       longitude: search.get("longitude") || "",
-      proofOfAddress: "",
+      proofOfAddress: "WATER_BILL",
       housePicture: null,
       addressProofPicture: null,
-      idType: "",
+      idType: "NIN",
       idPicture: null,
     };
   });
@@ -139,7 +139,8 @@ export function StepperForm() {
       });
 
       await axios.post(
-        "https://test.polarisdigitech.net/amp/api/poc/create",
+        // "https://test.polarisdigitech.net/amp/api/poc/create",
+        "https://amp-service.pdcollector.com/api/poc/create",
         data,
         {
           headers: { "Content-Type": "multipart/form-data" },
