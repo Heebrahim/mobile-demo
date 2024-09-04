@@ -140,8 +140,8 @@ export function StepperForm() {
       });
 
       await axios.post(
-        "https://test.polarisdigitech.net/amp/api/poc/create",
-        // "https://amp-service.pdcollector.com/api/poc/create",
+        // "https://test.polarisdigitech.net/amp/api/poc/create",
+        "https://amp-service.pdcollector.com/api/poc/create",
         data,
         {
           headers: { "Content-Type": "multipart/form-data" },
