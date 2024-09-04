@@ -1,5 +1,9 @@
 {
   "projects": {
-    "default": "poc-mobile-dd098"
-  }
+    "default": "poc-mobile-dd098",
+    "test": "poc-mobile-dd098"
+  },
+  "targets": {},
+  "etags": {},
+  "dataconnectEmulatorConfig": {}
 }

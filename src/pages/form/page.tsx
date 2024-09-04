@@ -74,9 +74,9 @@ export function StepperForm() {
         "lga",
         "state",
         "proofOfAddress",
-        "addressPicture",
+        "addressProofPicture",
       ],
-      2: ["idType", "idCard", "passport"],
+      2: ["idType", "idPicture", "passport", "housePicture"],
     };
     return requiredFields[activeStep].every((field) => formData[field]);
   };
@@ -95,7 +95,7 @@ export function StepperForm() {
         navigate("/map?step=1");
       } else {
         setActiveStep((prev) => prev + 1);
-        navigate(`/form?step=${activeStep + 1}`); // Update the URL
+        navigate(`/form?step=${activeStep + 1}`);
       }
     } else {
       toast({
@@ -120,7 +120,7 @@ export function StepperForm() {
     if (type === "file" && files[0]) {
       setFormData((prev) => ({
         ...prev,
-        [name]: files[0], // Keep file in memory, not session
+        [name]: files[0],
       }));
     } else {
       setFormData((prev) => ({
@@ -131,7 +131,8 @@ export function StepperForm() {
   };
 
   const handleSubmit = async () => {
-    setIsLoading(true);
+    if(validateStep()){
+      setIsLoading(true);
     try {
       const data = new FormData();
       Object.entries(formData).forEach(([key, value]) => {
@@ -139,8 +140,8 @@ export function StepperForm() {
       });
 
       await axios.post(
-        // "https://test.polarisdigitech.net/amp/api/poc/create",
-        "https://amp-service.pdcollector.com/api/poc/create",
+        "https://test.polarisdigitech.net/amp/api/poc/create",
+        // "https://amp-service.pdcollector.com/api/poc/create",
         data,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -166,7 +167,17 @@ export function StepperForm() {
     } finally {
       setIsLoading(false);
     }
-  };
+
+    }else {
+      toast({
+        title: "Incomplete Form",
+        description: "Please fill in all required fields.",
+        status: "warning",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  }
 
   const handleInitialStep = (type) => {
     setFormData((prev) => ({
@@ -335,7 +346,7 @@ export function StepperForm() {
 
             {activeStep === 1 && (
               <Box>
-                <Button>
+                <Button size="sm">
                   <Link className="" to="/map">
                     Map
                   </Link>
@@ -558,7 +569,7 @@ export function StepperForm() {
                 Submit
               </Button>
             ) : (
-              <Button onClick={handleNext} colorScheme="blue">
+              <Button  onClick={handleNext} colorScheme="blue">
                 Next
               </Button>
             )}
